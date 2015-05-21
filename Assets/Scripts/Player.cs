@@ -12,6 +12,12 @@ public class Player : MovingObject
 
 	[SerializeField] private Text _foodText;
 
+	[SerializeField] private AudioClip[] _moveSounds;
+	[SerializeField] private AudioClip[] _eatSounds;
+	[SerializeField] private AudioClip[] _drinkSounds;
+	[SerializeField] private AudioClip _gameOverSound;
+
+
 	private Animator _anim;
 	private int _food;
 
@@ -56,6 +62,11 @@ public class Player : MovingObject
 
 		RaycastHit2D hit;
 
+		if( Move (xDir, yDir, out hit) )
+		{
+			SoundManager.Instance.RandomizeFx(_moveSounds);
+		}
+
 		CheckIfGameOver();
 		GameManager.Instance.PlayersTurn = false;
 	}
@@ -71,12 +82,18 @@ public class Player : MovingObject
 		{
 			_food += _pointsPerFood;
 			_foodText.text = "+" + _pointsPerFood + " Food: " + _food;
+
+			SoundManager.Instance.RandomizeFx(_eatSounds);
+
 			other.gameObject.SetActive(false);
 		}
 		else if( other.tag == "Soda" )
 		{
 			_food += _pointsPerSoda;
 			_foodText.text = "+" + _pointsPerSoda + " Food: " + _food;
+
+			SoundManager.Instance.RandomizeFx(_drinkSounds);
+
 			other.gameObject.SetActive(false);
 		}
 	}
@@ -95,15 +112,21 @@ public class Player : MovingObject
 
 	public void loseFood( int loss )
 	{
+		_anim.SetTrigger("playerHit");
+
 		_food -= loss;
 		_foodText.text = "-" + loss + " Food: " + _food;
-		_anim.SetTrigger("playerHit");
+
 		CheckIfGameOver();
 	}
 
 	private void CheckIfGameOver( )
 	{
-		if ( _food <= 0 )
+		if ( _food <= 0 ) {
+			SoundManager.Instance.PlaySingle(_gameOverSound);
+			SoundManager.Instance.MusicSource.Stop();
 			GameManager.Instance.GameOver();
+
+		}
 	}
 }

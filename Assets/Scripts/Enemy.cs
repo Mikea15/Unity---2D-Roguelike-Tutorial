@@ -5,6 +5,8 @@ public class Enemy : MovingObject
 {
 	[SerializeField] private int _playerDamage;
 
+	[SerializeField] private AudioClip[] _enemyAttack;
+
 	private Animator _anim;
 	private Transform _target;
 
@@ -25,6 +27,8 @@ public class Enemy : MovingObject
 		Player hitPlayer = component as Player;
 
 		_anim.SetTrigger("enemyAttack");
+
+		SoundManager.Instance.RandomizeFx(_enemyAttack);
 
 		hitPlayer.loseFood(_playerDamage);
 	}
