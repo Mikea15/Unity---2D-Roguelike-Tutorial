@@ -5,6 +5,9 @@ public abstract class MovingObject : MonoBehaviour
 {
 	// seconds
 	[SerializeField] private float _moveTime = 0.1f;
+	public float MoveTime {
+		get { return _moveTime; }
+	}
 
 	[SerializeField] private LayerMask _blockingLayer;
 

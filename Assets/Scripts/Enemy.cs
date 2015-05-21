@@ -15,12 +15,17 @@ public class Enemy : MovingObject
 		_anim = this.GetComponent<Animator>();
 		_target = GameObject.FindGameObjectWithTag("Player").transform;
 
+		GameManager.Instance.AddEnemyToList(this);
+
 		base.Start();
 	}
 
 	protected override void OnCantMove<T> (T component)
 	{
 		Player hitPlayer = component as Player;
+
+		_anim.SetTrigger("enemyAttack");
+
 		hitPlayer.loseFood(_playerDamage);
 	}
 
