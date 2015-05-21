@@ -17,6 +17,8 @@ public class Player : MovingObject
 	[SerializeField] private AudioClip[] _drinkSounds;
 	[SerializeField] private AudioClip _gameOverSound;
 
+	private Vector2 _touchOrigin = -Vector2.one;
+
 
 	private Animator _anim;
 	private int _food;
@@ -43,11 +45,46 @@ public class Player : MovingObject
 		if( !GameManager.Instance.PlayersTurn )
 			return;
 
-		int horizontal = (int) Input.GetAxisRaw("Horizontal");
-		int vertical = (int) Input.GetAxisRaw("Vertical");
+		int horizontal = 0;
+		int vertical = 0;
+
+#if UNITY_STANDALONE || UNITY_WEBPLAYER || UNITY_EDITOR
+
+		horizontal = (int) Input.GetAxisRaw("Horizontal");
+		vertical = (int) Input.GetAxisRaw("Vertical");
 
 		if( horizontal != 0 )
 			vertical = 0;
+
+#else
+		if( Input.touchCount > 0 )
+		{
+			Touch myTouch = Input.touches[0];
+
+			if( myTouch.phase == TouchPhase.Began )
+			{
+				_touchOrigin = myTouch.position;
+			}
+			else if( myTouch.phase == TouchPhase.Ended && _touchOrigin.x >= 0 )
+			{
+				Vector2 touchEnd = myTouch.position;
+
+				float x = touchEnd.x - _touchOrigin.x;
+				float y = touchEnd.y - _touchOrigin.y;
+
+				_touchOrigin.x = -1;
+
+				if( Mathf.Abs(x) > Mathf.Abs(y) )
+				{
+					horizontal = x > 0 ? 1 : -1;
+				}
+				else
+				{
+					vertical = y > 0 ? 1 : -1;
+				}
+			}
+		}
+#endif
 
 		if( horizontal != 0 || vertical != 0)
 			AttemptMove<Wall>(horizontal, vertical);
